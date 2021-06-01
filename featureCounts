@@ -1,0 +1,2 @@
+gtf="/home/liujun/dmel/dmel-all-r6.39.gtf"
+featureCounts -T 5 -L -t exon -g gene_id -a $gtf -o all.counts.txt *.bam 1>counts.id.log 2>&1
