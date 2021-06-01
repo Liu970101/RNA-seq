@@ -1,0 +1,23 @@
+library(DESeq2)
+mycounts <- read.table("CK_IR.counts.txt", header = T, row.names = 1) #读取counts数据
+mycounts <- mycounts [,6:ncol(mycounts )] #
+head(mycounts)
+mycounts
+write.csv(mycounts, file="w1118_CK_IR_embryo_counts_20210528.csv")
+condition <- factor(c(rep("CK",3), rep("IR", 3)), levels = c("CK","IR"))
+condition
+colData <- data.frame(row.names = colnames(mycounts), condition)
+colData
+write.csv(colData, file="w1118_CK_IR_embryo_condation_20210528.csv")
+dds <- DESeqDataSetFromMatrix(mycounts, colData, design = ~condition)
+dds <- DESeq(dds)
+dds
+res = results(dds, contrast=c("condition", "CK", "IR"))
+res = res[order(res$pvalue),]
+head(res)
+summary(res)
+write.csv(res, file="w1118_CK_IR_embryo_DESeq2_20210528.xlsx")
+diff_gene_Group2 <- subset(res, padj < 0.1& abs(log2FoldChange) > 1)
+dim(diff_gene_Group2)
+head(diff_gene_Group2)
+write.csv(diff_gene_Group2, file ='w1118_CK_IR_embryo_DESeq2_different_gene_20210528.xlsx')
