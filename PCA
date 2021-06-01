@@ -1,0 +1,9 @@
+group_list <- rep(c("CK", "IR"), each = 3)
+library(ggord)
+library(FactoMineR)
+dat <- as.data.frame(t(mycounts))
+dat.pca <- PCA(dat, graph = FALSE)
+ggord(dat.pca,group_list,coord_fix = FALSE,
+      arrow = 0,vec_ext = 0,txt = NULL)
+ggsave("PCA.pdf")
+
