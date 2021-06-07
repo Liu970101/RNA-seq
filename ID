@@ -1,0 +1,5 @@
+library(clusterProfiler)
+library(org.Dm.eg.db)
+mycounts1$name=rownames(mycounts1)
+gene=bitr(mycounts1$name,fromType = 'ENSEMBL',toType = 'SYMBOL',OrgDb = org.Dm.eg.db)
+DM=merge(mycounts1,gene,by.x="name",by.y='ENSEMBL')
