@@ -1,0 +1,23 @@
+my <- read.table("gene1.csv", header = T, row.names = 1)
+my1<- read.table("A.csv", header = T, row.names = 1)
+
+library(pheatmap)
+
+p <- pheatmap(my,scale="row",
+              border=F, # 设置边框为白色
+              color = colorRampPalette(c("#0000ff", "white", "#ff4040"))(100),# 设置颜色
+              cluster_cols = F, # 显示横向、纵向聚类
+              cluster_rows = T,
+              clustering_method="single", # 设置聚类方法
+              treeheight_col = 50, # 分别设置横、纵向聚类树高
+              treeheight_row = 45)
+
+p <- pheatmap(my1,scale="row",
+              border=F, # 设置边框为白色
+              color = colorRampPalette(c("#0000ff", "white", "#ff4040"))(100),
+           
+              cluster_cols = F, # 显示横向、纵向聚类
+              cluster_rows = T,
+              clustering_method="single", # 设置聚类方法
+              treeheight_col = 50, # 分别设置横、纵向聚类树高
+              treeheight_row = 45)
