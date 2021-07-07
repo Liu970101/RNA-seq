@@ -1,0 +1,40 @@
+library(edgeR)
+group_list <- rep(c("Control", "FU"), each = 3) # 设置条件
+head(group_list)
+mycounts <- read.table("all.counts.txt", header = T, row.names = 1)
+mycounts <- mycounts [,6:ncol(mycounts )]
+mycounts <- mycounts[rowSums(mycounts) > 10,] # 保留＞10的基因
+#### 第一步，构建edgeR的DGEList对象，并过滤
+dge <- DGEList(counts = mycounts,group = factor(group_list))
+
+# 保留在至少在两个样本中cpm值大约1的基因
+keep <- rowSums(cpm(dge)>1) >= 2
+table(keep)
+  
+
+dge <- dge[keep, , keep.lib.sizes=FALSE]
+dge$samples$lib.size <- colSums(dge$counts)
+# 归一化基因表达分布
+dge <- calcNormFactors(dge)
+# 假设数据符合正态分布，构建线性模型
+ # 0代表x线性模型的截距为0
+design <- model.matrix(~0+factor(group_list))
+rownames(design) <- colnames(dge)
+colnames(design) <- levels(factor(group_list))
+
+#### 第二步，差异表达分析
+# 计算线性模型的参数
+dge <- estimateGLMCommonDisp(dge,design)
+dge <- estimateGLMTrendedDisp(dge, design)
+dge <- estimateGLMTagwiseDisp(dge, design)
+# 拟合线性模型
+fit <- glmFit(dge, design)
+
+# 进行差异分析
+lrt <- glmLRT(fit, contrast=c(-1,1))   # 1,-1意味着后比前
+
+#### 第三步，提取过滤差异分析结果
+DEG <- topTags(lrt, n=nrow(dge))
+DEG <- as.data.frame(DEG)
+head(DEG)
+write.table(DEG, file ='w1118_CK_IR_embryo_DESeq2_different_gene_edgRfdr_20210528.xlsx')
