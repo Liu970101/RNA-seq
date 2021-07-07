@@ -1,0 +1,31 @@
+library(DESeq2)
+mycounts <- read.table("all.counts.txt", header = T, row.names = 1) #读入数据
+mycounts <- mycounts [,6:ncol(mycounts )] #取出表达矩阵
+head(mycounts)
+# 改列名
+colnames(mycounts)[1]="w 1118_L3_CK_rep1 "
+colnames(mycounts)[2]="w 1118_L3_CK_rep2 "
+colnames(mycounts)[3]="w 1118_L3_CK_rep3 "
+colnames(mycounts)[4]="w 1118_L3_IR_rep1 "
+colnames(mycounts)[5]="w 1118_L3_IR_rep2 "
+colnames(mycounts)[6]="w 1118_L3_IR_rep3 "
+mycounts
+mycounts=mycounts[,-4] # 去除不要的第四列
+write.table(mycounts, file="w1118_CK_IR_L3_counts.csv")
+condition <- factor(c("CK" ,"CK" ,"CK", "IR" , "IR"), levels = c("IR","CK")) # 设置条件
+condition
+colData <- data.frame(row.names = colnames(mycounts), condition)
+colData
+write.csv(colData, file="w1118_CK_IR_L3_condation.csv")
+dds <- DESeqDataSetFromMatrix(mycounts, colData, design = ~condition)
+dds <- DESeq(dds)
+dds
+res = results(dds, contrast=c("condition", "IR", "CK"))
+res = res[order(res$pvalue),]
+head(res)
+summary(res)
+write.table(res, file="w1118_CK_IR_L3_DESeq2_.csv")
+diff_gene_Group2 <- subset(res, padj < 0.1& abs(log2FoldChange) > 1)
+dim(diff_gene_Group2)
+head(diff_gene_Group2)
+write.table(diff_gene_Group2, file ='w1118_CK_IR_L3_DESeq2_different_gene.csv')
