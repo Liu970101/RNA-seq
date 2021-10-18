@@ -1,0 +1,25 @@
+p<-ggplot(
+  #设置数据
+  dataset, 
+  aes(x = log2FoldChange, 
+      y = -log10(padj), 
+      colour=type )) +
+  geom_point() +
+  scale_color_manual(values = c('Up' = '#DC143C','Down' = '#0000FF')) +
+  
+ # scale_color_manual(values=c("#546de5", "#d2dae2","#ff4757"))
+  # 辅助线
+  geom_vline(xintercept=c(-1,1),lty=4,col="black",lwd=0.8) +
+  geom_hline(yintercept = -log10(cut_off_pvalue),lty=4,col="black",lwd=0.8) +
+  
+  # 坐标轴
+  labs(x="log2(fold change)",
+       y="-log10 (adj.Pvalue)",title ='atm_L3_CK vs w1118_L3_CK')+
+  theme_bw()+
+  
+  # 图例
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position="right", 
+        legend.title = element_blank()
+  )
+ggsave(file="Fig 1A.png", plot=p, width=5, height=4)
