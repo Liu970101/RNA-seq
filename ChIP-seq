@@ -1,0 +1,37 @@
+#! /bin/bash
+ /home/liujun/miniconda3/envs/macs/bin/fastq-dump --gzip --skip-technical --read-filter pass --dumpbase --clip --split-3 SRR1198811
+ /home/liujun/miniconda3/envs/macs/bin/fastq-dump --gzip --skip-technical --read-filter pass --dumpbase --clip --split-3 SRR1198810
+ /home/liujun/miniconda3/envs/macs/bin/fastq-dump --gzip --skip-technical --read-filter pass --dumpbase --clip --split-3 SRR1198809
+
+
+#! /bin/bash
+~/miniconda3/envs/aligners/bin/fastqc -12 *.fastq.gz
+~/miniconda3/envs/aligners/bin/multiqc ./
+
+
+
+#! /bin/bash
+cd ~/chip/clean
+export PATH=/home/liujun/miniconda3/envs/macs/bin:$PATH
+trim_galore=/home/liujun/miniconda3/envs/macs/bin/trim_galore
+ls /home/liujun/chip/raw/*.gz | while read fq1;
+do
+$trim_galore -q 25 --phred33 --length 25 -e 0.1 --stringency 4 -o /home/liujun/chip/clean  $fq1
+done
+
+
+
+
+#! /bin/bash
+cd ~/chip/align
+export PATH=/home/liujun/miniconda3/envs/macs/bin:$PATH
+bin_bowtie2=/home/liujun/miniconda3/envs/macs/bin/bowtie2
+bin_bowtie2=bowtie2
+bowtie2_index=/home/liujun/BDGP6/BDGP6
+ls ../clean/*.gz | while read id
+do
+file=$(basename $id)
+sample=${file%%.*}
+echo $file $sample
+$bin_bowtie2 -p 5 -x $bowtie2_index -U $id | samtools sort -O bam -@ 5 -o - > ${sample}.bam 
+done
