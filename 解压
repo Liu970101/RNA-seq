@@ -1,0 +1,2 @@
+for i in $(ls *.tgz);do tar xvf $i;done 批量解压的tgz文件
+for i in $(ls *.gz);do gzip -d $i;done批量解压的gz文件
