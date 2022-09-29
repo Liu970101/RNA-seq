@@ -1,0 +1,67 @@
+#读取CSV文件
+data <- read.csv("GSE163090_data.csv", header = T,sep=';')
+head(data )
+
+
+library(xlsx)
+write.xlsx(data, "test.xls",
+           sheetName = "data", append = TRUE)
+library(openxlsx)
+library(tidyverse)
+
+data1 <- read.xlsx("M.xlsx")
+head(data1)
+rownames(data1)=data1[,1]
+data1=data1[,-1]
+head(data1)
+
+library(limma)
+library(edgeR)
+library(statmod)
+
+group <- c(rep("CNV",6),rep("control",6)) 
+head(group)
+View(group)
+library(limma)
+dgelist <- DGEList(counts = data1, group = group)
+
+
+keep <- rowSums(cpm(dgelist) > 1 ) >= 2 #过滤
+dgelist <- dgelist[keep, ,keep.lib.sizes = FALSE]
+
+design <- model.matrix(~group)    #构建分组矩阵
+dge <- estimateDisp(dgelist, design, robust = TRUE) #估算离散值
+fit <- glmFit(dge, design, robust = TRUE)     #拟合模型
+lrt <- glmLRT(fit)   #统计检验
+topTags(lrt)
+
+write.csv(topTags(lrt, n = nrow(dgelist$counts)), ' M-DE.csv', quote = FALSE) #输出主要结果
+
+
+data1 <- read.xlsx("H.xlsx")
+head(data1)
+rownames(data1)=data1[,1]
+data1=data1[,-1]
+head(data1)
+
+library(limma)
+library(edgeR)
+library(statmod)
+
+group <- c(rep("CNV",4),rep("control",4)) 
+head(group)
+View(group)
+library(limma)
+dgelist <- DGEList(counts = data1, group = group)
+
+
+keep <- rowSums(cpm(dgelist) > 1 ) >= 2 #过滤
+dgelist <- dgelist[keep, ,keep.lib.sizes = FALSE]
+
+design <- model.matrix(~group)    #构建分组矩阵
+dge <- estimateDisp(dgelist, design, robust = TRUE) #估算离散值
+fit <- glmFit(dge, design, robust = TRUE)     #拟合模型
+lrt <- glmLRT(fit)   #统计检验
+topTags(lrt)
+
+write.csv(topTags(lrt, n = nrow(dgelist$counts)), ' H-DE.csv', quote = FALSE) #输出主要结果
