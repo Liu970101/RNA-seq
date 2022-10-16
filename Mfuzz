@@ -1,0 +1,47 @@
+library(maSigPro)
+library(openxlsx)
+library(tidyverse)
+BiocManager::install('Mfuzz')
+
+library(Mfuzz)
+data <- read.xlsx("Drosophila_Brain_counts_FPKM.xlsx")
+
+rownames(data)=data[,1]
+data=data[,-1]
+head(data)
+
+
+data[1:6,1:12] #表达矩阵概要
+dat< data
+
+dat<-as.matrix(dat)
+dat <- new('ExpressionSet',exprs = dat)
+
+#处理 NA 值
+
+dat <- filter.NA(dat, thres = 0.25)
+
+dat <- fill.NA(dat, mode = 'mean')
+
+#根据标准差去除样本间差异太小的基因
+
+dat <- filter.std(dat, min.std = 0)
+
+#标准化
+
+dat <- standardise(dat)
+
+#fuzzy c-means 聚类，需手动定义聚类个数，比方说设置 12 个簇
+
+n <- 12
+
+#评估出最佳的 m 值，防止随机数据聚类
+
+m <- mestimate(dat)
+
+#聚类
+
+set.seed(123)
+
+cl <- mfuzz(dat, c = n, m = m)
+mfuzz.plot(dat, cl = cl,mfrow = c(4, 4))
