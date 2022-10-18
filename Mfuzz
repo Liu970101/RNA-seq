@@ -44,4 +44,18 @@ m <- mestimate(dat)
 set.seed(123)
 
 cl <- mfuzz(dat, c = n, m = m)
-mfuzz.plot(dat, cl = cl,mfrow = c(4, 4))
+mfuzz.plot(dat, cl = cl,mfrow = c(4, 4),time.labels=colnames(data))
+
+#每个簇下的基因数目
+cl$size
+#每个基因所属簇
+head(cl$cluster)
+#基因与cluster之间的membership
+head(cl$membership)
+#整合输出表格
+gene_cluster <- cbind(cl$cluster,cl$membership)
+
+colnames(gene_cluster)[1]<-"cluster"
+
+write.table(gene_cluster,"gene_cluster.txt",sep = "\t",col.names = NA,quote = F)
+view(gene_cluster)
