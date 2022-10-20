@@ -1,3 +1,27 @@
+library(ggplot2)
+library(dplyr)
+library(openxlsx)
+library(tidyverse)
+
+cut_off_pvalue = 0.05  #统计显著性
+cut_off_logFC = 1           #差异倍数值
+
+dataset <- read.xlsx("w1118.xlsx")
+rownames(dataset)=dataset[,1]
+dataset=dataset[,-1]
+head(dataset)
+
+# 分类
+dataset$type <- case_when(
+  dataset$log2FoldChange >= 1 & dataset$padj < 0.05 ~ 'up',
+  dataset$log2FoldChange <= -1 & dataset$padj < 0.05 ~ 'down',
+  dataset$padj >= 0.05 ~ 'NoSig',
+  abs(dataset$log2FoldChange) < 1 ~ 'NoSig'
+)
+
+# 查看分类数量
+table(dataset$type)
+# 绘制火山图====================================
 p<-ggplot(
   #设置数据
   dataset, 
@@ -5,21 +29,21 @@ p<-ggplot(
       y = -log10(padj), 
       colour=type )) +
   geom_point() +
-  scale_color_manual(values = c('Up' = '#DC143C','Down' = '#0000FF')) +
+  scale_color_manual(values = c('up' = '#DC143C','down' = '#0000FF')) +
   
- # scale_color_manual(values=c("#546de5", "#d2dae2","#ff4757"))
+  # scale_color_manual(values=c("#546de5", "#d2dae2","#ff4757"))
   # 辅助线
   geom_vline(xintercept=c(-1,1),lty=4,col="black",lwd=0.8) +
   geom_hline(yintercept = -log10(cut_off_pvalue),lty=4,col="black",lwd=0.8) +
   
   # 坐标轴
-  labs(x="log2(fold change)",
-       y="-log10 (adj.Pvalue)",title ='atm_L3_CK vs w1118_L3_CK')+
-  theme_bw()+
+  labs(x="log2 (fold change)",
+       y="-log10 (adjusted pvalue)",title ='p53_L3_IR vs w 1118_L3_IR')+
+  theme_bw(base_family = "Times New Roman")+ 
   
   # 图例
   theme(plot.title = element_text(hjust = 0.5), 
         legend.position="right", 
         legend.title = element_blank()
   )
-ggsave(file="Fig 1A.png", plot=p, width=5, height=4)
+ggsave(file="Fig p53_L3_IR DEGs.png", plot=p, width=5, height=4)
