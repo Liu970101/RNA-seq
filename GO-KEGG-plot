@@ -1,0 +1,31 @@
+library(openxlsx)
+library(tidyverse)
+library(ggplot2)
+data <- read.xlsx("GO_plot.xlsx")
+head(data)
+ggplot(data,aes(Count,Term,
+                shape=Category,
+                colour=pvalue,
+                size=Count))+
+  geom_point()
+data$Term <- factor(data$Term,levels = unique(data$Term))
+windowsFonts(A=windowsFont("Times New Roman"))
+ggplot(data,aes(Count,Term,
+                shape=Category,
+                colour=pvalue,
+                size=Count))+
+  geom_point()+
+  theme(text = element_text(family = "A",size=20,face = "bold"))+
+  scale_color_gradient(low = "blue",high="red")+
+  scale_y_discrete(limits=rev(data$Term))+
+  guides(shape=guide_legend(order = 1))
+ggplot(data,aes(Count,Term,
+                shape=Category,
+                colour=pvalue,
+                size=Count))+
+  geom_point()+
+  theme(text = element_text(family = "A",size=15,face = "bold"))+
+  scale_color_gradient(low = "blue",high="red")+
+  scale_y_discrete(limits=rev(data$Term))+
+  guides(shape=guide_legend(order = 1))+
+  facet_grid(.~Category)
